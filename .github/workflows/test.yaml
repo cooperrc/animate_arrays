@@ -1,9 +1,0 @@
-name: CI
-on:  [workflow_dispatch, pull_request, push]
-
-jobs:
-  test:
-    steps: [uses: fastai/workflows/nbdev-ci@master; Iamshankhadeep/setup-ffmpeg@v1.2]
-    runs-on: ubuntu-latest
-
-
