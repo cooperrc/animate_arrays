@@ -1,0 +1,44 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "animate_arrays",
+    "section": "",
+    "text": "This module wraps some setup scripts and functions to make Matplotlib’s animations a little simpler to interface with. The starting point here becomes creating data with"
+  },
+  {
+    "objectID": "index.html#install",
+    "href": "index.html#install",
+    "title": "animate_arrays",
+    "section": "Install",
+    "text": "Install\npip install animate_arrays"
+  },
+  {
+    "objectID": "index.html#how-to-use-2d-arrays",
+    "href": "index.html#how-to-use-2d-arrays",
+    "title": "animate_arrays",
+    "section": "How to use 2D arrays",
+    "text": "How to use 2D arrays\n\nImport libraries\nThe animate_arrays functions work in Jupyter notebooks. You’ll need to import some of the libraries to build some arrays, plots, and animations as such,\n\nimport numpy as np\nimport matplotlib.pyplot as plt\nfrom matplotlib import animation\nfrom IPython.display import HTML\n\nI prefer to use the fivethirtyeight style sheet, but you can use any style.\n\nplt.style.use('fivethirtyeight')\n\nThen, import the animate_lines function from the animate_arrays.animate module.\n\nfrom animate_arrays.animate import animate_lines\n\n\n\nBuild arrays and watch them move\nWith the libraries imported, I build 2 arrays, X and Y where each column is \\(\\times 3~(x,~y)\\) coordinates that define two rotating arms.\n\nArm 1 rotates once around the origin\nArm 2 is connected to arm 1 and rotates twice\n\n\na = np.linspace(0, 2*np.pi, 100)\n\nx1 = np.cos(a)\ny1 = np.sin(a)\n\nx2 = np.cos(2*a)\ny2 = np.sin(2*a)\nX = np.array([np.zeros(len(a)), x1, x1+x2])\nY = np.array([np.zeros(len(a)), y1, y1+y2])\n\n\na = animate_lines(X, Y)\nHTML(a.to_html5_video())\n\n\n  \n  Your browser does not support the video tag.\n\n\n\nThe animation does not have equal axes, so the arms appear to be changing lengths as the rotations occur.\nThe setup_fig_function option allows you to define a custom plot setup. Here, I name it fig_setup\n\ndef fig_setup():\n    fig, ax = plt.subplots()\n    \n    ax.plot(X[2, :], Y[2, :], '--')\n    ax.axis('equal')\n    return fig, ax\n\nThe setup_fig_function should not take any arguments. I used it to set up 2 new display additions, 1. plot the path of arm 2’s end so we can see where its been and where its going on the dashed line 2. equal axes with ax.axis('equal')\nBelow, I try running the function and looking at the resulting static figure for the animation\n\nfig, ax = fig_setup()\n\n\n\n\n\na = animate_lines(X, Y, setup_fig_function= fig_setup)\n\n\nHTML(a.to_html5_video())\n\n\n  \n  Your browser does not support the video tag."
+  },
+  {
+    "objectID": "index.html#how-to-use-3d-arrays",
+    "href": "index.html#how-to-use-3d-arrays",
+    "title": "animate_arrays",
+    "section": "How to use 3D arrays",
+    "text": "How to use 3D arrays\nIn the first example, we used a 2D array where each column defined the line for a point in time. The animate_lines function can also plot multiple lines in each frame. Here, we’ll add another set of rotating arms.\n\na = np.linspace(0, 2*np.pi, 100)\n\nx1 = np.cos(a)\ny1 = np.sin(a)\n\nx2 = np.cos(2*a)\ny2 = np.sin(2*a)\n\nx3 = np.cos(2*a)\ny3 = np.sin(2*a)\n\nx4 = np.cos(3*a)\ny4 = np.sin(3*a)\n\nX = np.zeros((3, 2, len(a)))\nY = np.zeros((3, 2, len(a)))\n\nX[:, 0, :] = np.array([np.zeros(len(a)), x1, x1+x2])\nX[:, 1, :] = np.array([np.zeros(len(a)), x3, x3+x4])\n\nY[:, 0, :] = np.array([np.zeros(len(a)), y1, y1+y2])\nY[:, 1, :] = np.array([np.zeros(len(a)), y3, y3+y4])\n\n\ndef fig_setup():\n    fig, ax = plt.subplots()\n    \n    ax.plot(X[2, 0, :], Y[2, 0, :], '--')\n    ax.plot(X[2, 1, :], Y[2, 1, :], '--')\n    ax.axis('equal')\n    return fig, ax\n\n\nfig_setup()\n\n(<Figure size 640x480 with 1 Axes>, <AxesSubplot: >)\n\n\n\n\n\n\na2 = animate_lines(X, Y, setup_fig_function=fig_setup)\nHTML(a2.to_html5_video())\n\n\n  \n  Your browser does not support the video tag."
+  },
+  {
+    "objectID": "animate.html",
+    "href": "animate.html",
+    "title": "animate_lines - create NumPy array animations",
+    "section": "",
+    "text": "source"
+  },
+  {
+    "objectID": "animate.html#parameters",
+    "href": "animate.html#parameters",
+    "title": "animate_lines - create NumPy array animations",
+    "section": "Parameters:",
+    "text": "Parameters:\nX: The x-axis data for the animated lines, its shape is such that each column is a set of x-values for a given line and each frame is organized along the third dimension Y: The y-axis data for the animated lines, its shape is such that each column is a set of y-values for a given line and each frame is organized along the third dimension xlabel: plot x-axis label, default is ‘x-position’, ylabel: plot y-axis label, default is ‘y-position’, setup_fig_function: a function that returns fig and ax that can be used to plot static lines before animating, default is an empty plot xlims: Manually set the x-axis limits. If its not specified, the animation uses 1.1*(max&min) ylims: [], labels: [], linewidth: 5 legend: False, interval : int, default: 200 Delay between frames in milliseconds. plotargs: used as kwargs for matplotlib’s plot command\nSet up X and Y variables that are functions of time\neach column is a single line, \\(x-\\) or \\(y-\\) values. Here, the first point in time is called with all columns and all rows. Each \\((x_{zN},~y_{zN})\\) is plotted as a single line for that animation frame. - lines that will be drawn are labeled \\(a,~b,~...~z\\), for 4 lines, there are 4 columns. - \\(x-y\\) coordinates are numbered \\(1,~2,~...~N\\), for 100 coordinates, there are 100 rows.\n\\(X[:,~ :,~ 0] = \\left[\\begin{array} ~x_{a1}(0) & x_{b1}(0) & ... & x_{z1}(0)\\\\ x_{a2}(0) & x_{b2}(0) & ... & x_{z2}(0)\\\\ x_{a3}(0) & x_{b2}(0) & ... & x_{z3}(0)\\\\ ... & ... & ... & ...\\\\ x_{aN}(0) & x_{bN}(0) & ... & x_{zN}(0) \\end{array}\\right]\\)\n\\(Y[:,~ :,~ 0] = \\left[\\begin{array} ~y_{a1}(0) & y_{b1}(0) & ... & y_{z1}(0)\\\\ y_{a2}(0) & y_{b2}(0) & ... & y_{z2}(0)\\\\ y_{a3}(0) & y_{b2}(0) & ... & y_{z3}(0)\\\\ ... & ... & ... & ...\\\\ y_{aN}(0) & y_{bN}(0) & ... & y_{zN}(0) \\end{array}\\right]\\)\nThe next time step would be,\n\\(X[:,~ :,~ 1] = \\left[\\begin{array} ~x_{a1}(\\Delta t) & x_{b1}(\\Delta t) & ... & x_{z1}(\\Delta t)\\\\ x_{a2}(\\Delta t) & x_{b2}(\\Delta t) & ... & x_{z2}(\\Delta t)\\\\  x_{a3}(\\Delta t) & x_{b2}(\\Delta t) & ... & x_{z3}(\\Delta t)\\\\ ... & ... & ... & ...\\\\ x_{aN}(\\Delta t) & x_{bN}(\\Delta t) & ... & x_{zN}(\\Delta t) \\end{array}\\right]\\)\n\\(Y[:,~ :,~ 1] = \\left[\\begin{array} ~y_{a1}(\\Delta t) & y_{b1}(\\Delta t) & ... & y_{z1}(\\Delta t)\\\\ y_{a2}(\\Delta t) & y_{b2}(\\Delta t) & ... & y_{z2}(\\Delta t)\\\\ y_{a3}(\\Delta t) & y_{b2}(\\Delta t) & ... & y_{z3}(\\Delta t)\\\\ ... & ... & ... & ...\\\\ y_{aN}(\\Delta t) & y_{bN}(\\Delta t) & ... & y_{zN}(\\Delta t) \\end{array}\\right]\\)\nIn this example, we create 4 vibration modes that vibrate while the amplitude decays,\n\\(y(t,~x) = A(t)\\sin(\\lambda x)\\)\nwhere - \\(t\\) time goes from 0-5 seconds with 50 steps - \\(x\\) is the x-axis variable that goes from 0 to \\(2\\pi\\) units - \\(A(t) = e^{-t/2}\\cos(6t)\\) is the oscillating and decaying amplitude - \\(\\lambda = \\frac{1}{2},~1,~\\frac{3}{2},~2\\) are the wave shapes for 1/2-, full, 1.5 and 2x sine waves along the x-axis\n\nt = np.linspace(0, 5)\nx = np.linspace(0, 2*np.pi, 100)\n\ny1 = np.sin(x/2)\ny2 = np.sin(x)\ny3 = np.sin(1.5*x)\ny4 = np.sin(2*x)\n\nA = np.exp(-t/2)*np.cos(6*t)\n\ny = np.array([y1, y2, y3, y4]).T\n\nNow, I set up the full 3D arrays for X and Y.\nX.shape \\(=(100, 4, 50) = (rows,~columns,~layers)\\) - axis 0: each row is a constant \\(x\\)-value - axis 1: each column is a new line that will be drawn - axis 2: each layer is a new time step\n\nX = np.zeros((len(x), y.shape[1], len(t)))\nY = np.zeros((len(x), y.shape[1], len(t)))\n\nfor i in range(len(t)):\n    Y[:, :, i] = A[i]*y\n    X[:, :, i] = np.array([x for i in range(y.shape[1])]).T\n\nObserving a static image, the 1/2-sine wave is shown every \\(5^{th}\\) timestep.\n\nfor i in range(0, len(t), 5):\n    plt.plot(X[:, 0, i], Y[:, 0, i])\n\n\n\n\nNow, I can plot the \\(\\times 4\\) lines oscillating and watch the amplitudes decrease using the default parameters in\n\nanim = animate_lines(X, Y, interval=84)\n\nHTML(anim.to_html5_video())\n\n\n  \n  Your browser does not support the video tag.\n\n\n\nI can also view the animation using Javascript HTML, which adds extra functionality to the video player,\n\nHTML(anim.to_jshtml())\n\n\n\n\n\n\n\n\n  \n  \n    \n    \n      \n          \n      \n        \n      \n          \n      \n          \n      \n          \n      \n          \n      \n          \n      \n          \n      \n          \n    \n    \n      \n      Once\n      \n      Loop\n      \n      Reflect"
+  }
+]
