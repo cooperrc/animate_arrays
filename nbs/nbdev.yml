@@ -1,0 +1,9 @@
+project:
+  output-dir: _docs
+
+website:
+  title: "animate_arrays"
+  site-url: "https://cooperrc.github.io/animate_arrays"
+  description: "Module with functions to animate data stored in 2D+3D arrays"
+  repo-branch: main
+  repo-url: "https://github.com/cooperrc/animate_arrays"
